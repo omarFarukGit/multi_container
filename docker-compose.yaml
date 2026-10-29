@@ -1,0 +1,51 @@
+
+services:
+  multi-c-server:
+    container_name: multi-c-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - multi-client-c-server-network
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+    ports:
+      - "5000:3000"
+    working_dir: /app
+    volumes:
+      - ./server:/app
+      - multi-server-c-node-modules:/app/node_modules
+    command: npm run dev
+
+  multi-c-cliet:
+    container_name: mulit-c-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - multi-client-c-server-network
+    environment:
+      - CHOKIDAR_USEPOLLING= "1"
+      - WATCHPACK_POLLING= "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - client-c-node-modules:/app/node_modules
+      - client-next:/app/.next
+    working_dir: /app
+    command: "npm run dev -- -H 0.0.0.0"
+
+networks:
+  multi-client-c-server-network:
+    driver: bridge
+
+volumes:
+  multi-server-c-node-modules:
+  client-c-node-modules:
+  client-next:
+
+
